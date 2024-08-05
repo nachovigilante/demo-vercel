@@ -59,6 +59,25 @@ app.get("/canciones", async (req, res) => {
     res.send(result.rows);
 });
 
+app.get("/artistas/:id/canciones", async (req, res) => {
+    const client = new Client(config);
+    await client.connect();
+    let result = await client.query(
+        `SELECT 
+            canciones.*, 
+            albumes.nombre AS nombre_album, 
+            artistas.nombre nombre_artista 
+        FROM canciones
+        INNER JOIN albumes ON canciones.album = albumes.id
+        INNER JOIN artistas ON albumes.artista = artistas.id
+        WHERE artistas.id = $1`,
+        [req.params.id]
+    );
+    await client.end();
+    console.log(result.rows);
+    res.send(result.rows);
+});
+
 app.listen(PORT, () => {
     console.log(`✅ Server is running on port ${PORT}`);
 });
