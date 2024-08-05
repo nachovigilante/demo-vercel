@@ -23,7 +23,6 @@ app.get("/artistas", async (req, res) => {
     await client.connect();
     let result = await client.query("SELECT * FROM artistas");
     await client.end();
-    console.log(result.rows);
     res.send(result.rows);
 });
 
@@ -38,7 +37,6 @@ app.get("/albumes", async (req, res) => {
         INNER JOIN artistas ON albumes.artista = artistas.id`
     );
     await client.end();
-    console.log(result.rows);
     res.send(result.rows);
 });
 
@@ -55,7 +53,6 @@ app.get("/canciones", async (req, res) => {
         INNER JOIN artistas ON albumes.artista = artistas.id`
     );
     await client.end();
-    console.log(result.rows);
     res.send(result.rows);
 });
 
@@ -73,8 +70,14 @@ app.get("/artistas/:id/canciones", async (req, res) => {
         WHERE artistas.id = $1`,
         [req.params.id]
     );
+
     await client.end();
-    console.log(result.rows);
+
+    if (result.rowCount === 0) {
+        return res
+            .status(404)
+            .send("No se encontraron canciones para el artista");
+    }
     res.send(result.rows);
 });
 
